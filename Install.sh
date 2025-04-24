@@ -5,9 +5,9 @@ echo "? Starting SensorCluster installation..."
 # === Configuration ===
 REPO_NAME="SensorCluster"
 REPO_URL="https://github.com/pengels22/SensorCluster.git"
-TEMP_DIR="/home/pi/TempRepo"
+TEMP_DIR="$HOME/TempRepo"
 REPO_DIR="$TEMP_DIR/$REPO_NAME"
-CLUSTER_DIR="/home/pi/Cluster"
+CLUSTER_DIR="$HOME/Cluster"
 ARDUINO_DIR="$CLUSTER_DIR/Arduino"
 PI_DIR="$CLUSTER_DIR/Pi"
 ICONS_DIR="$PI_DIR/Icons"
@@ -46,9 +46,9 @@ pip3 install --break-system-packages \
   pillow
 
 # === Add user to groups ===
-echo "? Adding 'pi' to system groups..."
+echo "? Adding '$USER' to system groups..."
 for group in pi adm dialout cdrom sudo audio video plugdev games users input render netdev lpadmin gpio i2c spi; do
-  sudo usermod -aG $group pi
+  sudo usermod -aG $group $USER
 done
 
 # === Clone or update GitHub repo ===
@@ -114,10 +114,10 @@ Description=SensorCluster Backend Server
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python3 /home/pi/Cluster/Pi/Server-V3.py
-WorkingDirectory=/home/pi/Cluster/Pi
+ExecStart=/usr/bin/python3 $CLUSTER_DIR/Pi/Server-V3.py
+WorkingDirectory=$CLUSTER_DIR/Pi
 Restart=always
-User=pi
+User=$USER
 
 [Install]
 WantedBy=multi-user.target
