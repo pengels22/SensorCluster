@@ -31,7 +31,8 @@ sudo apt install -y \
   zlib1g-dev \
   libopenjp2-7 \
   i2c-tools \
-  build-essential
+  build-essential \
+  tree
 
 # === Install Python libraries ===
 echo "? Installing Python libraries..."
@@ -74,13 +75,60 @@ cp -r "$REPO_DIR/Pi/"* "$PI_DIR/"
 cp -r "$REPO_DIR/Pi/Icons/"* "$ICONS_DIR/" 2>/dev/null || echo "?? No Icons folder found."
 cp -r "$REPO_DIR/Firmware/"* "$FIRMWARE_DIR/" 2>/dev/null || echo "?? No Firmware folder found."
 
-# === Check bluetooth.png exists ===
-if [ ! -f "$ICONS_DIR/bluetooth.png" ]; then
-  echo "? bluetooth.png is missing in Pi/Icons. Please check the repo."
+# === Verify required files ===
+echo "? Verifying required files..."
+
+required_files=(
+  "$PI_DIR/Server-V3.py"
+  "$PI_DIR/wifi_setup.py"
+  "$PI_DIR/bluetooth_setup.py"
+  "$PI_DIR/flash_arduino.py"
+  "$ICONS_DIR/wifi.png"
+  "$ICONS_DIR/bluetooth.png"
+)
+
+missing=false
+for file in "${required_files[@]}"; do
+  if [ ! -f "$file" ]; then
+    echo "? Missing: $file"
+    missing=true
+  else
+    echo "? Found: $file"
+  fi
+done
+
+if [ "$missing" = true ]; then
+  echo "? One or more critical files are missing. Installation aborted."
   exit 1
 fi
 
-# === Show final structure ===
+# === Setup systemd service for Server-V3.py ===
+echo "? Setting up systemd service for Server-V3.py..."
+
+SERVICE_NAME="sensorcluster"
+SERVICE_PATH="/etc/systemd/system/${SERVICE_NAME}.service"
+
+sudo tee "$SERVICE_PATH" > /dev/null <<EOF
+[Unit]
+Description=SensorCluster Backend Server
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 /home/pi/Cluster/Pi/Server-V3.py
+WorkingDirectory=/home/pi/Cluster/Pi
+Restart=always
+User=pi
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Enable and start the service
+sudo systemctl daemon-reexec
+sudo systemctl enable "$SERVICE_NAME"
+sudo systemctl start "$SERVICE_NAME"
+
+# === Show final folder structure ===
 echo "? Final folder structure:"
 tree -L 2 "$CLUSTER_DIR" || ls -R "$CLUSTER_DIR"
 
