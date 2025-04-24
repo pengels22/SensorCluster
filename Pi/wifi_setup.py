@@ -86,7 +86,7 @@ def index():
 from datetime import datetime
 import traceback
 
-LOG_FILE = "/home/patrick/SignalAnnalisys/Pi/boot_log.txt"
+LOG_FILE = "~/Pi/boot_log.txt"
 
 def log_error(error_message):
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
