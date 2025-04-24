@@ -22,20 +22,20 @@ import logging
 WIFI_ICON = None
 BLUETOOTH_ICON = None
 try:
-    WIFI_ICON = Image.open("/home/pi/Cluster/Pi/icons/wifi.png").convert("1").resize((12,12), Image.LANCZOS)
+    WIFI_ICON = Image.open("~/Cluster/Pi/icons/wifi.png").convert("1").resize((12,12), Image.LANCZOS)
     WIFI_ICON = ImageOps.invert(WIFI_ICON.convert("L"))
-    BLUETOOTH_ICON = Image.open("/home/pi/Cluster/Pi/icons/bluetooth.png").convert("1").resize((16,16), Image.LANCZOS)
+    BLUETOOTH_ICON = Image.open("~/Cluster/Pi/icons/bluetooth.png").convert("1").resize((16,16), Image.LANCZOS)
 except Exception as e:
     append_session_log("?? Icon load failed:", e)
 
 # === CONFIGURATION ===
 SERIAL_PORT = '/dev/ttyS0'
 BAUD_RATE = 115200
-LOCAL_LOG_DIR = '/home/pi/Desktop/sensor_logs'
+LOCAL_LOG_DIR = '~/Desktop/sensor_logs'
 sensor_log_filename = None
 SESSION_LOG = {}
 SESSION_LOG_PATH = ""
-SESSION_LOG_DIR = "/home/pi/Desktop/Logs"
+SESSION_LOG_DIR = "~/Desktop/Logs"
 dio_config = {
     "digital": ["In", "In", "In", "In"]
 }
