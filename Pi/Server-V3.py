@@ -713,9 +713,7 @@ def append_session_log(message, level="INFO"):
 threading.Thread(target=menu_monitor, daemon=True).start()
 threading.Thread(target=serial_reader, daemon=True).start()
 threading.Thread(target=usb_monitor, daemon=True).start()
-def git_test():
-    print("this is ti test the git auto push")
-    return
+
 if __name__ == "__main__":
     socketio.run(app, host="0.0.0.0", port=5000)
  
