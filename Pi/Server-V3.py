@@ -718,7 +718,7 @@ def ping_loop(serial_port, interval=1):
             print(f"? Keepalive failed: {e}")
             break
 
-
+ping_thread.start()
 # === START ===
 threading.Thread(target=menu_monitor, daemon=True).start()
 threading.Thread(target=serial_reader, daemon=True).start()
@@ -729,4 +729,4 @@ ping_thread = threading.Thread(target=ping_loop, args=(ser,), daemon=True)
 if __name__ == "__main__":
     socketio.run(app, host="0.0.0.0", port=5000)
  
-ping_thread.start()
+
