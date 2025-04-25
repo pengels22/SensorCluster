@@ -1,4 +1,4 @@
-#define FIRMWARE_VERSION "1.2.3"
+#define FIRMWARE_VERSION "1.2.4"
 #include <Adafruit_NeoPixel.h>
 #include <SoftwareSerial.h>
 #include <avr/sleep.h>
@@ -187,4 +187,3 @@ void streamSensorData() {
     Serial.println(rs485Address);
   }
 }
-
