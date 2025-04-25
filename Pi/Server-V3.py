@@ -714,6 +714,7 @@ def ping_loop(serial_port, interval=1):
         try:
             serial_port.write(b"PING\n")
             time.sleep(interval)
+            print("-<3-")
         except Exception as e:
             print(f"? Keepalive failed: {e}")
             break
