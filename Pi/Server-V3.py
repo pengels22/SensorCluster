@@ -720,6 +720,8 @@ def ping_loop(serial_port, interval=1):
             break
 if __name__ == "__main__":
 # === START ===
+    ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
+
     threading.Thread(target=menu_monitor, daemon=True).start()
     threading.Thread(target=serial_reader, daemon=True).start()
     threading.Thread(target=usb_monitor, daemon=True).start()
