@@ -22,9 +22,9 @@ import logging
 WIFI_ICON = None
 BLUETOOTH_ICON = None
 try:
-    WIFI_ICON = Image.open("~/Cluster/Pi/icons/wifi.png").convert("1").resize((12,12), Image.LANCZOS)
+    WIFI_ICON = Image.open(os.path.expanduser("~/Cluster/Pi/icons/wifi.png").convert("1").resize((12,12)), Image.LANCZOS)
     WIFI_ICON = ImageOps.invert(WIFI_ICON.convert("L"))
-    BLUETOOTH_ICON = Image.open("~/Cluster/Pi/icons/bluetooth.png").convert("1").resize((16,16), Image.LANCZOS)
+    BLUETOOTH_ICON = Image.open(os.path.expanduser("~/Cluster/Pi/icons/bluetooth.png").convert("1").resize((16,16)), Image.LANCZOS)
 except Exception as e:
     append_session_log("?? Icon load failed:", e)
 
