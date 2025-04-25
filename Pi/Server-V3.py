@@ -20,7 +20,7 @@ import logging
 
 SESSION_LOG = {}
 SESSION_LOG_PATH = ""
-SESSION_LOG_DIR = "~/Desktop/Logs"
+SESSION_LOG_DIR = os.path.expanduser("~/Desktop/Logs")
 def append_session_log(message, level="INFO"):
     global SESSION_LOG, SESSION_LOG_PATH
 
