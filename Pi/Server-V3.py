@@ -18,7 +18,9 @@ from luma.oled.device import sh1106
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 import logging
 
-
+SESSION_LOG = {}
+SESSION_LOG_PATH = ""
+SESSION_LOG_DIR = "~/Desktop/Logs"
 def append_session_log(message, level="INFO"):
     global SESSION_LOG, SESSION_LOG_PATH
 
@@ -51,9 +53,7 @@ SERIAL_PORT = '/dev/ttyS0'
 BAUD_RATE = 115200
 LOCAL_LOG_DIR = '~/Desktop/sensor_logs'
 sensor_log_filename = None
-SESSION_LOG = {}
-SESSION_LOG_PATH = ""
-SESSION_LOG_DIR = "~/Desktop/Logs"
+
 dio_config = {
     "digital": ["In", "In", "In", "In"]
 }
