@@ -708,12 +708,25 @@ def append_session_log(message, level="INFO"):
             json.dump(SESSION_LOG, f, indent=2)
     except Exception as e:
         print("❌ Failed to write session log:", e)
+        
+def ping_loop(serial_port, interval=1):
+    while True:
+        try:
+            serial_port.write(b"PING\n")
+            time.sleep(interval)
+        except Exception as e:
+            print(f"? Keepalive failed: {e}")
+            break
+
 
 # === START ===
 threading.Thread(target=menu_monitor, daemon=True).start()
 threading.Thread(target=serial_reader, daemon=True).start()
 threading.Thread(target=usb_monitor, daemon=True).start()
+ping_thread = threading.Thread(target=ping_loop, args=(ser,), daemon=True)
+
 
 if __name__ == "__main__":
     socketio.run(app, host="0.0.0.0", port=5000)
  
+ping_thread.start()
