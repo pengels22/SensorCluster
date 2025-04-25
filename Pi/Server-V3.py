@@ -39,7 +39,26 @@ def append_session_log(message, level="INFO"):
 
 
 #wifi and bluetooth icon
+WIFI_ICON = None
+BLUETOOTH_ICON = None
 
+try:
+    # Load and process Wi-Fi icon
+    wifi_path = os.path.expanduser("~/Cluster/Pi/icons/wifi.png")
+    if os.path.exists(wifi_path):
+        WIFI_ICON = Image.open(wifi_path).convert("1").resize((12, 12), Image.LANCZOS)
+    else:
+        print(f"?? Wi-Fi icon not found at {wifi_path}")
+
+    # Load and process Bluetooth icon
+    bt_path = os.path.expanduser("~/Cluster/Pi/icons/bluetooth.png")
+    if os.path.exists(bt_path):
+        BLUETOOTH_ICON = Image.open(bt_path).convert("1").resize((16, 16), Image.LANCZOS)
+    else:
+        print(f"?? Bluetooth icon not found at {bt_path}")
+
+except Exception as e:
+    print("? Icon load failed:", e)
 # === CONFIGURATION ===
 SERIAL_PORT = '/dev/ttyS0'
 BAUD_RATE = 115200
