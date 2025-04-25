@@ -18,6 +18,24 @@ from luma.oled.device import sh1106
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 import logging
 
+
+def append_session_log(message, level="INFO"):
+    global SESSION_LOG, SESSION_LOG_PATH
+
+    if not SESSION_LOG_PATH:
+        return
+
+    log_line = f"[{level.upper()}] {message}"
+    SESSION_LOG["system_logs"].append(log_line)
+    print(log_line)
+
+    try:
+        with open(SESSION_LOG_PATH, "w") as f:
+            json.dump(SESSION_LOG, f, indent=2)
+    except Exception as e:
+        print("? Failed to write session log:", e)
+
+
 #wifi and bluetooth icon
 WIFI_ICON = None
 BLUETOOTH_ICON = None
@@ -41,21 +59,7 @@ dio_config = {
 }
 
 
-def append_session_log(message, level="INFO"):
-    global SESSION_LOG, SESSION_LOG_PATH
 
-    if not SESSION_LOG_PATH:
-        return
-
-    log_line = f"[{level.upper()}] {message}"
-    SESSION_LOG["system_logs"].append(log_line)
-    print(log_line)
-
-    try:
-        with open(SESSION_LOG_PATH, "w") as f:
-            json.dump(SESSION_LOG, f, indent=2)
-    except Exception as e:
-        print("? Failed to write session log:", e)
 
 def find_usb_drive():
     global ACTIVE_LOG_DIR
