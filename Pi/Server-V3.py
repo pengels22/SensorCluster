@@ -378,6 +378,14 @@ def handle_start_logging(config):
     append_session_log("? Received start_logging:", config)
     append_session_log("? Logging started. Session file:", sensor_log_filename)
 
+@socketio.on('ios_log')
+def handle_ios_log(data):
+    line = data.get('line', '')
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    emit('ios_log', {'timestamp': timestamp, 'line': line}, broadcast=True)
+
+
+
 # === ROUTES ===
 
     
