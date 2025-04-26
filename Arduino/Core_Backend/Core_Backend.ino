@@ -57,9 +57,7 @@ void loop() {
   streamSensorData();
 
   // Check if we've lost keepalive signal
-  if (millis() - lastPing > pingTimeout) {
-    goToSleep();
-  }
+ 
 }
 
 // === Serial Command Parser ===
