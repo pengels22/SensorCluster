@@ -730,16 +730,7 @@ def append_session_log(message, level="INFO"):
             json.dump(SESSION_LOG, f, indent=2)
     except Exception as e:
         print("❌ Failed to write session log:", e)
-        
-def ping_loop(serial_port, interval=1):
-    while True:
-        try:
-            serial_port.write(b"PING\n")
-            time.sleep(interval)
-            print("-<3-")
-        except Exception as e:
-            print(f"? Keepalive failed: {e}")
-            break
+
 if __name__ == "__main__":
 # === START ===
     ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
