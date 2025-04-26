@@ -160,4 +160,3 @@ void streamSensorData() {
     Serial.print("|ADDR:");
     Serial.println(rs485Address);
   }
-}
