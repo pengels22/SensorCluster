@@ -143,15 +143,13 @@ function openTab(tabName) {
 function toggleAnalogView() {
     analogSplitView = !analogSplitView;
     renderAnalogCharts();
-    const btn = document.getElementById('analog-split-btn');
-    btn.classList.toggle('active', analogSplitView);
+    document.getElementById('analog-split-btn').classList.toggle('active', analogSplitView);
 }
 
 function toggleDigitalView() {
     digitalSplitView = !digitalSplitView;
     renderDigitalCharts();
-    const btn = document.getElementById('digital-split-btn');
-    btn.classList.toggle('active', digitalSplitView);
+    document.getElementById('digital-split-btn').classList.toggle('active', digitalSplitView);
 }
 
 function sendRS485() {
@@ -186,8 +184,18 @@ function renderAnalogCharts() {
             document.getElementById('analog-charts').appendChild(canvas);
             analogCharts.push(new Chart(canvas.getContext('2d'), {
                 type: 'line',
-                data: { labels: [], datasets: [{ label: `A${i}`, data: [], borderColor: getColor(i) }] },
-                options: { scales: { y: { min: 0, max: 5 } } }
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: `A${i}`,
+                        data: [],
+                        borderColor: getColor(i),
+                        spanGaps: true
+                    }]
+                },
+                options: {
+                    scales: { y: { min: 0, max: 5 } }
+                }
             }));
         }
     } else {
@@ -198,9 +206,16 @@ function renderAnalogCharts() {
             type: 'line',
             data: {
                 labels: [],
-                datasets: [0,1,2,3].map(i => ({ label: `A${i}`, data: [], borderColor: getColor(i) }))
+                datasets: [0,1,2,3].map(i => ({
+                    label: `A${i}`,
+                    data: [],
+                    borderColor: getColor(i),
+                    spanGaps: true
+                }))
             },
-            options: { scales: { y: { min: 0, max: 5 } } }
+            options: {
+                scales: { y: { min: 0, max: 5 } }
+            }
         }));
     }
 }
@@ -215,8 +230,18 @@ function renderDigitalCharts() {
             document.getElementById('digital-charts').appendChild(canvas);
             digitalCharts.push(new Chart(canvas.getContext('2d'), {
                 type: 'line',
-                data: { labels: [], datasets: [{ label: `D${i}`, data: [], borderColor: getColor(i) }] },
-                options: { scales: { y: { min: 0, max: 1 } }, stepped: true }
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: `D${i}`,
+                        data: [],
+                        borderColor: getColor(i),
+                        spanGaps: true
+                    }]
+                },
+                options: {
+                    scales: { y: { min: 0, max: 1 } }
+                }
             }));
         }
     } else {
@@ -227,14 +252,20 @@ function renderDigitalCharts() {
             type: 'line',
             data: {
                 labels: [],
-                datasets: [0,1,2,3].map(i => ({ label: `D${i}`, data: [], borderColor: getColor(i) }))
+                datasets: [0,1,2,3].map(i => ({
+                    label: `D${i}`,
+                    data: [],
+                    borderColor: getColor(i),
+                    spanGaps: true
+                }))
             },
-            options: { scales: { y: { min: 0, max: 1 } }, stepped: true }
+            options: {
+                scales: { y: { min: 0, max: 1 } }
+            }
         }));
     }
 }
 
-// Incoming sensor data handler
 socket.on('sensor_update', (data) => {
     const now = new Date().toLocaleTimeString();
 
