@@ -433,8 +433,7 @@ with open(os.path.join(web_folder, 'debug.html'), 'r') as f:
 
 @app.route('/debug')
 def debug():
-    return render_template_string(debug_html)
-
+    return send_from_directory('/home/pi/Cluster/Web', 'debug.html')
 
 @app.route('/api/voltage_mode')
 def get_voltage_mode():
