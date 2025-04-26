@@ -442,10 +442,18 @@ with open(os.path.join(web_folder, 'debug.html'), 'r') as f:
 @app.route('/debug')
 def debug():
     return render_template_string(debug_html)
+
 @app.route('/api/voltage_mode')
 def get_voltage_mode():
     return jsonify({'voltage_mode': current_voltage_index})
-                     
+
+@socketio.on('ios_log_batch')
+def handle_ios_log_batch(data):
+    lines = data.get('lines', [])
+    for line in lines:
+        socketio.emit('ios_log', {'line': line})
+
+
 def draw_scrolling_text(draw, y, label, scroll_key, text, font, max_width):
     global scroll_offsets, image
 
