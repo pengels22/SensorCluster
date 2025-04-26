@@ -433,8 +433,7 @@ with open(os.path.join(web_folder, 'debug.html'), 'r') as f:
 
 @app.route('/debug')
 def debug():
-    return send_from_directory('/home/pi/Cluster/Web', 'debug.html')
-
+    return render_template_string(debug_html)
 @app.route('/api/voltage_mode')
 def get_voltage_mode():
     return jsonify({'voltage_mode': current_voltage_index})
