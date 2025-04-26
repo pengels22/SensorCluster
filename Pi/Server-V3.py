@@ -18,22 +18,6 @@ from luma.oled.device import sh1106
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 import logging
 
-web_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'Web'))
-
-# Load index.html
-with open(os.path.join(web_folder, 'index.html'), 'r') as f:
-    dashboard_html = f.read()
-
-@app.route('/dashboard')
-def dashboard():
-    return render_template_string(dashboard_html)
-# Load debug.html
-with open(os.path.join(web_folder, 'debug.html'), 'r') as f:
-    debug_html = f.read()
-
-@app.route('/debug')
-def debug():
-    return render_template_string(debug_html)
 
 
 
@@ -434,6 +418,25 @@ def authenticate():
     else:
         return jsonify({"error": "Invalid PIN"}), 401
     
+web_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'Web'))
+
+# Load index.html
+with open(os.path.join(web_folder, 'index.html'), 'r') as f:
+    dashboard_html = f.read()
+
+@app.route('/dashboard')
+def dashboard():
+    return render_template_string(dashboard_html)
+# Load debug.html
+with open(os.path.join(web_folder, 'debug.html'), 'r') as f:
+    debug_html = f.read()
+
+@app.route('/debug')
+def debug():
+    return render_template_string(debug_html)
+
+
+
 def draw_scrolling_text(draw, y, label, scroll_key, text, font, max_width):
     global scroll_offsets, image
 
