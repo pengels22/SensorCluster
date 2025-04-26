@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Sensor Dashboard</title>
-    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js""></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
@@ -208,38 +208,72 @@ function renderDigitalCharts() {
 
 socket.on('sensor_update', (data) => {
     const now = new Date().toLocaleTimeString();
+
     if (analogCharts.length) {
-        analogCharts.forEach((chart, index) => {
-            chart.data.labels.push(now);
-            if (analogSplitView) {
+        if (analogSplitView) {
+            // Split: one chart per analog pin
+            analogCharts.forEach((chart, index) => {
+                chart.data.labels.push(now);
                 chart.data.datasets[0].data.push(data.analog[index] || 0);
-            } else {
-                chart.data.datasets[index].data.push(data.analog[index] || 0);
-            }
-            chart.options.scales.y.max = voltageMap[data.voltage_mode] || 5;
-            if (chart.data.labels.length > 20) {
-                chart.data.labels.shift();
-                chart.data.datasets.forEach(d => d.data.shift());
-            }
-            chart.update();
-        });
-    }
-    if (digitalCharts.length) {
-        digitalCharts.forEach((chart, index) => {
+
+                if (chart.data.labels.length > 20) {
+                    chart.data.labels.shift();
+                    chart.data.datasets[0].data.shift();
+                }
+
+                chart.options.scales.y.max = voltageMap[data.voltage_mode] || 5;
+                chart.update();
+            });
+        } else {
+            // Combined: one chart, multiple datasets
+            const chart = analogCharts[0];
+
             chart.data.labels.push(now);
-            if (digitalSplitView) {
-                chart.data.datasets[0].data.push(data.digital[index] || 0);
-            } else {
-                chart.data.datasets[index].data.push(data.digital[index] || 0);
-            }
+            data.analog.forEach((val, index) => {
+                chart.data.datasets[index].data.push(val || 0);
+            });
+
             if (chart.data.labels.length > 20) {
                 chart.data.labels.shift();
                 chart.data.datasets.forEach(d => d.data.shift());
             }
+
+            chart.options.scales.y.max = voltageMap[data.voltage_mode] || 5;
             chart.update();
-        });
+        }
+    }
+
+    if (digitalCharts.length) {
+        if (digitalSplitView) {
+            digitalCharts.forEach((chart, index) => {
+                chart.data.labels.push(now);
+                chart.data.datasets[0].data.push(data.digital[index] || 0);
+
+                if (chart.data.labels.length > 20) {
+                    chart.data.labels.shift();
+                    chart.data.datasets[0].data.shift();
+                }
+
+                chart.update();
+            });
+        } else {
+            const chart = digitalCharts[0];
+
+            chart.data.labels.push(now);
+            data.digital.forEach((val, index) => {
+                chart.data.datasets[index].data.push(val || 0);
+            });
+
+            if (chart.data.labels.length > 20) {
+                chart.data.labels.shift();
+                chart.data.datasets.forEach(d => d.data.shift());
+            }
+
+            chart.update();
+        }
     }
 });
+
 
 socket.on('rs485_output', (data) => {
     const console = document.getElementById('rs485-console');
