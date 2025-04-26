@@ -142,9 +142,6 @@ void readSensors() {
 
 // === Stream Data to Pi ===
 void streamSensorData() {
-  if (millis() - lastStream >= streamInterval) {
-    lastStream = millis();
-
     Serial.print("A:");
     for (int i = 0; i < 4; i++) {
       Serial.print(analogValues[i] / 100.0, 2);
