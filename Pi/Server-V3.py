@@ -1,6 +1,6 @@
 import eventlet
 eventlet.monkey_patch()
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template_string
 from flask_socketio import SocketIO, emit
 import threading
 import serial
@@ -18,6 +18,22 @@ from luma.oled.device import sh1106
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 import logging
 
+web_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'Web'))
+
+# Load index.html
+with open(os.path.join(web_folder, 'index.html'), 'r') as f:
+    dashboard_html = f.read()
+
+@app.route('/dashboard')
+def dashboard():
+    return render_template_string(dashboard_html)
+# Load debug.html
+with open(os.path.join(web_folder, 'debug.html'), 'r') as f:
+    debug_html = f.read()
+
+@app.route('/debug')
+def debug():
+    return render_template_string(debug_html)
 
 
 
