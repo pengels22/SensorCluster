@@ -68,11 +68,7 @@ void handleSerial() {
     String input = Serial.readStringUntil('\n');
     input.trim();
 
-    // Reset keepalive timeout if we got any data
-    if (input == "PING") {
-      lastPing = millis();
-      return;
-    }
+    
 
     if (input.startsWith("mode:")) {
       voltageMode = input.substring(5).toInt();
