@@ -38,7 +38,7 @@ void setup() {
   pinMode(RELAY2_PIN, OUTPUT);
 
   pixel.begin();
-  pixel.setBrightness(64);
+  pixel.setBrightness(30);
   pixel.setPixelColor(0, pixel.Color(0, 255, 0)); 
   pixel.show();
 
@@ -67,7 +67,7 @@ void handleSerial() {
 
     
 
-    if (input.startsWith("mode:")) {
+    if (input.startsWith("MODE:")) {
       voltageMode = input.substring(5).toInt();
       applyVoltageMode(voltageMode);
 
