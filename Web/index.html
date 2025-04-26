@@ -126,7 +126,7 @@ let analogSplitView = false;
 let digitalSplitView = false;
 let analogCharts = [];
 let digitalCharts = [];
-let currentVoltageMode = 1;
+let currentVoltageMode = 1; // fallback if no server
 const voltageMap = { 0: 3.3, 1: 5, 2: 12, 3: 24 };
 
 function openTab(tabName) {
@@ -249,14 +249,6 @@ function sendRS485() {
 socket.on('sensor_update', (data) => {
   const now = new Date().toLocaleTimeString();
 
-  if (data.voltage_mode !== currentVoltageMode) {
-    currentVoltageMode = data.voltage_mode;
-    analogCharts.forEach(chart => {
-      chart.options.scales.y.max = voltageMap[data.voltage_mode] || 5;
-      chart.update('none');
-    });
-  }
-
   if (analogCharts.length) {
     if (analogSplitView) {
       analogCharts.forEach((chart, index) => {
@@ -293,10 +285,21 @@ socket.on('log_timer_update', (time) => {
   document.getElementById('log-timer').textContent = 'Time Remaining: ' + time;
 });
 
-// Start up
-openTab('analog');
-renderAnalogCharts();
-renderDigitalCharts();
+// ====== Fetch voltage mode and initialize dashboard ======
+
+fetch('/api/voltage_mode')
+  .then(response => response.json())
+  .then(data => {
+    currentVoltageMode = data.voltage_mode;
+    openTab('analog');
+    renderAnalogCharts();
+    renderDigitalCharts();
+  })
+  .catch(err => {
+    console.error('Could not fetch voltage mode:', err);
+    window.location.href = '/debug';
+  });
+
 </script>
 
 </body>
