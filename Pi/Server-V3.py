@@ -18,6 +18,9 @@ from luma.oled.device import sh1106
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 import logging
 
+
+
+
 SESSION_LOG = {}
 SESSION_LOG_PATH = ""
 SESSION_LOG_DIR = os.path.expanduser("~/Desktop/Logs")
