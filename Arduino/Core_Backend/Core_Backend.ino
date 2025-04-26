@@ -27,26 +27,6 @@ SoftwareSerial rs485(RS485_RX, RS485_TX);
 Adafruit_NeoPixel pixel(1, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
 
 // === Timing ===
-unsigned long lastStream = 0;
-const unsigned long streamInterval = 100;
-
-// === Keepalive Tracking ===
-unsigned long lastPing = 0;
-const unsigned long pingTimeout = 3000; // 3 seconds
-
-// === Sleep Mode ===
-void goToSleep() {
-  pixel.setPixelColor(0, pixel.Color(0, 0, 0)); // Turn off NeoPixel
-  pixel.show();
-
-  set_sleep_mode(SLEEP_MODE_PWR_DOWN);
-  sleep_enable();
-  noInterrupts();
-  sleep_bod_disable();
-  interrupts();
-  sleep_cpu();
-  sleep_disable();
-}
 
 // === Setup ===
 void setup() {
@@ -191,4 +171,3 @@ void streamSensorData() {
     Serial.println(rs485Address);
   }
 }
-
