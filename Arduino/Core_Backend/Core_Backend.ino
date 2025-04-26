@@ -38,7 +38,7 @@ void setup() {
   pinMode(RELAY2_PIN, OUTPUT);
 
   pixel.begin();
-  pixel.setBrightness(30);
+  pixel.setBrightness(2);
   pixel.setPixelColor(0, pixel.Color(0, 255, 0)); 
   pixel.show();
 
