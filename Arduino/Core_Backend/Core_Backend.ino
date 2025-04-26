@@ -47,7 +47,6 @@ void setup() {
   }
 
   applyVoltageMode(voltageMode);
-  lastPing = millis(); // start timeout clock
 }
 
 // === Main Loop ===
