@@ -436,7 +436,10 @@ def debug():
     return render_template_string(debug_html)
 
 
-
+@app.route('/api/voltage_mode')
+def get_voltage_mode():
+    return jsonify({'voltage_mode': current_voltage_index})
+                     
 def draw_scrolling_text(draw, y, label, scroll_key, text, font, max_width):
     global scroll_offsets, image
 
