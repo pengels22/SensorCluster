@@ -146,14 +146,14 @@ void streamSensorData() {
     for (int i = 0; i < 4; i++) {
       Serial.print(analogValues[i] / 100.0, 2);
       if (i < 3) Serial.print(",");
-      handleSerial()
+      handleSerial();
     }
 
     Serial.print("|D:");
     for (int i = 0; i < 4; i++) {
       Serial.print(digitalStates[i]);
       if (i < 3) Serial.print(",");
-      handleSerial()
+      handleSerial();
     }
 
     Serial.print("|mode:");
