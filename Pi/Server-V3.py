@@ -314,7 +314,7 @@ def serial_reader():
 @socketio.on("set_voltage")
 def handle_set_voltage(index):
     global current_voltage_index
-    current_voltage_index = int(index)  # ? This was missing
+    current_voltage_index = index  # ? This was missing
 
     cmd = f"MODE:{current_voltage_index}\n"
     append_session_log(f"?? set_voltage received: {index}")
