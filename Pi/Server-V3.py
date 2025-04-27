@@ -29,6 +29,7 @@ def serial_worker():
             print(f"[SERIAL ERROR] {e}")
         finally:
             serial_write_queue.task_done()
+            print("done")
 
 serial_thread = threading.Thread(target=serial_worker, daemon=True)
 serial_thread.start()
