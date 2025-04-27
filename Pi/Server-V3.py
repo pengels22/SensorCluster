@@ -30,8 +30,8 @@ def serial_worker():
         finally:
             serial_write_queue.task_done()
 
-
-# Start the reader thread
+serial_thread = threading.Thread(target=serial_worker, daemon=True)
+serial_thread.start()
 
 
 SESSION_LOG = {}
@@ -763,8 +763,7 @@ if __name__ == "__main__":
     threading.Thread(target=usb_monitor, daemon=True).start()
     reader_thread = threading.Thread(target=serial_reader, daemon=True)
     reader_thread.start()
-    serial_thread = threading.Thread(target=serial_worker, daemon=True)
-    serial_thread.start()
+
     socketio.run(app, host="0.0.0.0", port=5000)
  
 
