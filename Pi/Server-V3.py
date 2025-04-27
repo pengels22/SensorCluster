@@ -19,20 +19,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 import logging
 import queue
 
-serial_write_queue = queue.Queue()
-def serial_worker():
-    while True:
-        cmd = serial_write_queue.get()
-        try:
-            serial_write_queue.put(cmd)
-        except Exception as e:
-            print(f"[SERIAL ERROR] {e}")
-        finally:
-            serial_write_queue.task_done()
-            print("done")
 
-serial_thread = threading.Thread(target=serial_worker, daemon=True)
-serial_thread.start()
 
 
 SESSION_LOG = {}
