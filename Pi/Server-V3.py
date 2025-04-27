@@ -17,8 +17,22 @@ from luma.core.interface.serial import i2c
 from luma.oled.device import sh1106
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 import logging
+import queue
 
+serial_write_queue = queue.Queue()
+def serial_worker():
+    while True:
+        cmd = serial_write_queue.get()
+        try:
+            serial_write_queue.put(cmd)
+        except Exception as e:
+            print(f"[SERIAL ERROR] {e}")
+        finally:
+            serial_write_queue.task_done()
 
+# Start the worker thread
+serial_thread = threading.Thread(target=serial_worker, daemon=True)
+serial_thread.start()
 
 
 SESSION_LOG = {}
@@ -319,7 +333,7 @@ def handle_set_voltage(index):
     cmd = f"MODE:{current_voltage_index}\n"
     append_session_log(f"?? set_voltage received: {index}")
     if ser:
-        ser.write(cmd.encode())
+        serial_write_queue.put(cmd)
         append_session_log(f"?? Sent to Arduino: {cmd.strip()}")
 
     draw_menu()  # Update OLED display with new voltage
