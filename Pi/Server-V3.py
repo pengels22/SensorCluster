@@ -320,7 +320,7 @@ def handle_set_voltage(index):
     cmd = f"MODE:{current_voltage_index}\n"
     append_session_log(f"?? set_voltage received: {index}")
     if ser:
-        serial_write_queue.put(cmd)
+        ser.write(cmd.encode())
         append_session_log(f"?? Sent to Arduino: {cmd.strip()}")
 
     draw_menu()  # Update OLED display with new voltage
