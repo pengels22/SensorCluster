@@ -30,6 +30,11 @@ def serial_worker():
         finally:
             serial_write_queue.task_done()
 
+
+# Start the reader thread
+reader_thread = threading.Thread(target=serial_reader, daemon=True)
+reader_thread.start()
+
 # Start the worker thread
 serial_thread = threading.Thread(target=serial_worker, daemon=True)
 serial_thread.start()
