@@ -9,6 +9,7 @@ from pathlib import Path
 
 # === CONFIGURATION ===
 RESET_PIN = 23
+POWEER_PIN = 5
 SERIAL_PORT = "/dev/serial0"
 BAUD_RATE = "115200"
 MCU = "atmega328p"
@@ -104,6 +105,8 @@ def start_server():
 def reset_arduino_and_flash():
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(RESET_PIN, GPIO.OUT)
+    GPIO.setup(POWER_PIN, GPIO.OUT)
+    GPIO.output(POWER_PIN, GPIO.HIGH)
 
     print("⚡ Resetting Arduino into bootloader...")
     GPIO.output(RESET_PIN, GPIO.LOW)
