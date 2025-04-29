@@ -17,6 +17,9 @@ from luma.core.interface.serial import i2c
 from luma.oled.device import sh1106
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 import logging
+dio_config = {
+    "digital": ["In", "In", "In", "In"]
+}
 
 #wifi and bluetooth icon
 WIFI_ICON = None
