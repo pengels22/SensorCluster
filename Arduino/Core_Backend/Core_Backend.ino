@@ -40,7 +40,7 @@ void setup() {
 
   pixel.begin();
   pixel.setBrightness(20);
-  pixel.setPixelColor(0, 255, 0); 
+  pixel.setPixelColor(0,0, 255, 0); 
   pixel.show();
 
   for (int i = 0; i < 4; i++) {
@@ -101,19 +101,19 @@ void applyVoltageMode(int mode) {
     case 0:
       digitalWrite(RELAY1_PIN, LOW);
       digitalWrite(RELAY2_PIN, LOW);
-      pixel.setPixelColor(0, 0, 0, 255); break;  // Blue
+      pixel.setPixelColor(0,0, 0, 0, 255); break;  // Blue
     case 1:
       digitalWrite(RELAY1_PIN, HIGH);
       digitalWrite(RELAY2_PIN, LOW);
-      pixel.setPixelColor(0, 255, 0, 0); break;  // Red
+      pixel.setPixelColor(0,0, 255, 0, 0); break;  // Red
     case 2:
       digitalWrite(RELAY1_PIN, LOW);
       digitalWrite(RELAY2_PIN, HIGH);
-      pixel.setPixelColor(0, 255, 255, 0); break;  // Yellow
+      pixel.setPixelColor(0,0, 255, 255, 0); break;  // Yellow
     case 3:
       digitalWrite(RELAY1_PIN, HIGH);
       digitalWrite(RELAY2_PIN, HIGH);
-      pixel.setPixelColor(0, 255, 255, 255); break;  // White
+      pixel.setPixelColor(0,0, 255, 255, 255); break;  // White
     default:
       return;
   }
