@@ -282,7 +282,8 @@ def handle_logging(entry):
 
 # === SERIAL READER ===
 def serial_reader():
-    global latest_data, log_active, debug
+    global latest_data, log_active
+    global debug
     while True:
         try:
             line = ser.readline().decode().strip()
