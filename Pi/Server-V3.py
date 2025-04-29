@@ -305,7 +305,7 @@ def serial_reader():
 
                 if result:
                     latest_data = result
-                    print(result)
+                    print(latest_data)
                     socketio.emit("sensor_update", result)
                     if log_active:
                         handle_logging(result)
