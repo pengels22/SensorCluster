@@ -439,7 +439,7 @@ with open(os.path.join(web_folder, 'index.html'), 'r') as f:
 
 @app.route('/dashboard')
 def dashboard():
-    return render_template_string(dashboard_html)
+    return send_from_directory(web_folder, "index.html")
 # Load debug.html
 with open(os.path.join(web_folder, 'debug.html'), 'r') as f:
     debug_html = f.read()
