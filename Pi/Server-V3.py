@@ -289,7 +289,7 @@ def serial_reader():
             line = ser.readline().decode().strip()
             if debug:
                 #print("RAW LINE:", line)
-                
+                return
 
             if line:
                 parts = line.split("|")
