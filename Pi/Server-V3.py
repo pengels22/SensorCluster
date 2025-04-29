@@ -286,6 +286,8 @@ def serial_reader():
     while True:
         try:
             line = ser.readline().decode().strip()
+            print("RAW LINE:", line)
+
             if line:
                 parts = line.split("|")
                 result = {}
