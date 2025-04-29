@@ -288,7 +288,7 @@ def serial_reader():
         try:
             line = ser.readline().decode().strip()
             if debug:
-                print("RAW LINE:", line)
+                #print("RAW LINE:", line)
                 
 
             if line:
