@@ -328,7 +328,11 @@ def handle_set_voltage(index):
 def get_current_digital_modes():
     return dio_config["digital"]
 
-
+@socketio.on('connect')
+def on_connect():
+    append_session_log("? Client connected")
+    print("? Client connected")
+    
 @socketio.on("set_dio_mode")
 def handle_dio_mode(data):
     pin = data.get("pin")
