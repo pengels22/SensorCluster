@@ -754,7 +754,7 @@ def append_session_log(message, level="INFO"):
         print("❌ Failed to write session log:", e)
 
 if __name__ == "__main__":
-# === START ===
+    global debugg
     ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
 
     threading.Thread(target=menu_monitor, daemon=True).start()
@@ -762,6 +762,8 @@ if __name__ == "__main__":
     reader_thread = threading.Thread(target=serial_reader, daemon=True)
     reader_thread.start()
 
-    socketio.run(app, host="0.0.0.0", port=5000)
+    socketio.run(app, host="0.0.0.0", port=5000, debug = debugg)
+    if debugg:
+        print("Debugging mode enabled")
  
 
