@@ -19,7 +19,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 import logging
 import queue
 
-debug = False
+debug = 'False'
 
 
 SESSION_LOG = {}
@@ -286,7 +286,7 @@ def serial_reader():
     while True:
         try:
             line = ser.readline().decode().strip()
-            if debug == True:
+            if debug = 'True':
                 print("RAW LINE:", line)
 
             if line:
