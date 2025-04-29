@@ -754,7 +754,7 @@ def append_session_log(message, level="INFO"):
         print("❌ Failed to write session log:", e)
 
 if __name__ == "__main__":
-    global debugg
+
     ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
 
     threading.Thread(target=menu_monitor, daemon=True).start()
