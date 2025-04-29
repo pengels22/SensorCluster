@@ -325,6 +325,19 @@ def handle_send_rs485(data):
     message = data.get("message")
     if message:
         ser.write(f"RS485:{message}\n".encode())
+def get_current_digital_modes():
+    return dio_config["digital"]
+
+@socketio.on("set_dio_mode")
+def handle_dio_mode(data):
+    pin = data.get("pin")
+    mode = data.get("mode")
+
+    if pin is not None and mode in ["In", "Out"]:
+        ser.write(f"DIO:{pin}:{mode}\n".encode())
+        if pin < 4:  # Only track digital IO (D0?D3)
+            dio_config["digital"][pin] = mode
+
 
 @socketio.on("get_latest")
 def handle_get_latest():
@@ -349,8 +362,7 @@ def handle_start_logging(config):
     append_session_log("? Received start_logging:", config)
     append_session_log("? Logging started. Session file:", sensor_log_filename)
 
-def get_current_digital_modes():
-    return dio_config["digital"]
+
 
 # === ROUTES ===
 
