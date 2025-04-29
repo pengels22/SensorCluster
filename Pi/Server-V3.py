@@ -19,7 +19,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 import logging
 import queue
 
-debugg = False
+debug = False
 
 
 SESSION_LOG = {}
@@ -287,7 +287,7 @@ def serial_reader():
     while True:
         try:
             line = ser.readline().decode().strip()
-            if debugg:
+            if debug:
                 print("RAW LINE:", line)
                 
 
@@ -310,7 +310,7 @@ def serial_reader():
 
                 if result:
                     latest_data = result
-                    #print(latest_data)
+                    
                     socketio.emit("sensor_update", result)
                     if log_active:
                         handle_logging(result)
