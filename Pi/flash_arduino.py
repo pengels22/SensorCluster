@@ -147,7 +147,7 @@ if __name__ == "__main__":
     new_version = extract_version_from_ino()
     if not new_version:
         print("❌ Unable to determine new firmware version from .ino file")
-        sys.exit(1)
+        #sys.exit(1)
 
     print(f"🏁 New firmware version: {new_version}")
 
