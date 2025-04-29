@@ -19,7 +19,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 import logging
 import queue
 
-debug == False
+debug = False
 
 
 SESSION_LOG = {}
