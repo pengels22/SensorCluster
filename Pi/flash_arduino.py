@@ -14,8 +14,8 @@ SERIAL_PORT = "/dev/serial0"
 BAUD_RATE = "115200"
 MCU = "atmega328p"
 PROGRAMMER = "arduino"
-SKETCH_DIR = os.path.expanduser("home/pi/Cluster/Arduino/Core_Backend")
-FIRMWARE_DEST = os.path.expanduser("home/pi/Cluster/Firmware/firmware.hex")
+SKETCH_DIR = "home/pi/Cluster/Arduino/Core_Backend"
+FIRMWARE_DEST = "home/pi/Cluster/Firmware/firmware.hex"
 HEX_BUILD_NAME = "Core_Backend.ino.hex"
 INO_FILE = os.path.join(SKETCH_DIR, "Core_Backend.ino")
 SERVICE_NAME = "sensorcluster"
@@ -59,7 +59,7 @@ def should_update(new_ver, current_ver):
 
 def compile_sketch():
     print("🔨 Compiling Arduino sketch to fixed output folder...")
-    output_dir = os.path.expanduser("~/Firmware")
+    output_dir = "/home/pi/Firmware"
     result = subprocess.run([
         "arduino-cli", "compile",
         "--fqbn", "arduino:avr:nano",
