@@ -349,6 +349,9 @@ def handle_start_logging(config):
     append_session_log("? Received start_logging:", config)
     append_session_log("? Logging started. Session file:", sensor_log_filename)
 
+def get_current_digital_modes():
+    return dio_config["digital"]
+
 # === ROUTES ===
 
     
