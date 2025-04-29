@@ -398,9 +398,9 @@ def authenticate():
         voltage_mode = VOLTAGE_MODES[current_voltage_index]
 
         digital_modes = get_current_digital_modes()
-        
+        analog_modes = {in,in,in,in}
 
-        start_session_log(connection_type, voltage_mode, digital_modes)
+        start_session_log(connection_type, voltage_mode, digital_modes, analog_modes)
         append_session_log("✅ Authenticated", "INFO")
 
         return jsonify({"message": "Authenticated"})
