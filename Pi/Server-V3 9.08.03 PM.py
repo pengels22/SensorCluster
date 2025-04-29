@@ -37,6 +37,21 @@ SESSION_LOG = {}
 SESSION_LOG_PATH = ""
 SESSION_LOG_DIR = "/home/pi/Desktop/Logs"
 
+def append_session_log(message, level="INFO"):
+    global SESSION_LOG, SESSION_LOG_PATH
+
+    if not SESSION_LOG_PATH:
+        return
+
+    log_line = f"[{level.upper()}] {message}"
+    SESSION_LOG["system_logs"].append(log_line)
+
+    try:
+        with open(SESSION_LOG_PATH, "w") as f:
+            json.dump(SESSION_LOG, f, indent=2)
+    except Exception as e:
+        append_session_log("❌ Failed to write session log:", e)
+
 def find_usb_drive():
     global ACTIVE_LOG_DIR
     media_dir = '/media/'
@@ -654,20 +669,6 @@ def start_session_log(connection_type, voltage_mode, digital_modes, analog_modes
     with open(SESSION_LOG_PATH, "w") as f:
         json.dump(SESSION_LOG, f, indent=2)
 
-def append_session_log(message, level="INFO"):
-    global SESSION_LOG, SESSION_LOG_PATH
-
-    if not SESSION_LOG_PATH:
-        return
-
-    log_line = f"[{level.upper()}] {message}"
-    SESSION_LOG["system_logs"].append(log_line)
-
-    try:
-        with open(SESSION_LOG_PATH, "w") as f:
-            json.dump(SESSION_LOG, f, indent=2)
-    except Exception as e:
-        append_session_log("❌ Failed to write session log:", e)
 
 # === START ===
 threading.Thread(target=menu_monitor, daemon=True).start()
