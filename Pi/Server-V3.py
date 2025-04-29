@@ -444,7 +444,7 @@ def dashboard():
 with open(os.path.join(web_folder, 'debug.html'), 'r') as f:
     debug_html = f.read()
 
-@app.route('/debug')
+#@app.route('/debug')
 def debug():
     return render_template_string(debug_html)
 
