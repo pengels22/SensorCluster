@@ -1,5 +1,6 @@
 #include <Adafruit_NeoPixel.h>
 #include <SoftwareSerial.h>
+#include <LowPower.h>
 
 // === CONFIGURATION ===
 #define RELAY1_PIN 2
@@ -7,6 +8,7 @@
 #define NEOPIXEL_PIN 11
 #define ADDRESS_1 A6
 #define ADDRESS_2 A7
+#define SHUTDOWN_PIN 10  // Connected to Pi GPIO 5
 
 const int ANALOG_PINS[] = {A0, A1, A2, A3};
 const int DIGITAL_PINS[] = {6, 7, 8, 9};
@@ -17,6 +19,8 @@ int analogValues[4];
 int voltageMode = 0;
 int rs485Address = 42;
 int accessoryID = 0;
+
+volatile bool shouldWake = false;
 
 // === RS485 Setup ===
 #define RS485_RX 5
@@ -38,24 +42,44 @@ void setup() {
   pinMode(RELAY1_PIN, OUTPUT);
   pinMode(RELAY2_PIN, OUTPUT);
 
+  pinMode(SHUTDOWN_PIN, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(SHUTDOWN_PIN), wakeISR, RISING);
+
   pixel.begin();
   pixel.setBrightness(20);
-  pixel.setPixelColor(0,0, 255, 0); 
-  pixel.show();
+  applyVoltageMode(voltageMode);  // Set initial color and relays
 
   for (int i = 0; i < 4; i++) {
     pinMode(DIGITAL_PINS[i], INPUT);
   }
-
-  applyVoltageMode(voltageMode);
 }
 
 // === Main Loop ===
 void loop() {
+  if (digitalRead(SHUTDOWN_PIN) == LOW) {
+    shouldWake = false;
+    delay(50);  // Debounce
+
+    if (digitalRead(SHUTDOWN_PIN) == LOW) {
+      pixel.clear();
+      pixel.show();
+
+      LowPower.powerDown(SLEEP_FOREVER, ADC_OFF, BOD_OFF);
+      delay(100);  // Wake delay
+
+      applyVoltageMode(voltageMode);  // Restore NeoPixel + relays
+    }
+  }
+
   handleSerial();
   readSensors();
   detectAccessoryID();
   streamSensorData();
+}
+
+// === Wake ISR ===
+void wakeISR() {
+  shouldWake = true;
 }
 
 // === Serial Command Parser ===
@@ -101,15 +125,15 @@ void applyVoltageMode(int mode) {
     case 0:
       digitalWrite(RELAY1_PIN, LOW);
       digitalWrite(RELAY2_PIN, LOW);
-      pixel.setPixelColor(0, 0, 0, 255); break;  // Blue
+      pixel.setPixelColor(0, 0, 0, 255); break;      // Blue
     case 1:
       digitalWrite(RELAY1_PIN, HIGH);
       digitalWrite(RELAY2_PIN, LOW);
-      pixel.setPixelColor(0, 255, 0, 0); break;  // Red
+      pixel.setPixelColor(0, 255, 0, 0); break;      // Red
     case 2:
       digitalWrite(RELAY1_PIN, LOW);
       digitalWrite(RELAY2_PIN, HIGH);
-      pixel.setPixelColor(0, 255, 255, 0); break;  // Yellow
+      pixel.setPixelColor(0, 255, 255, 0); break;    // Yellow
     case 3:
       digitalWrite(RELAY1_PIN, HIGH);
       digitalWrite(RELAY2_PIN, HIGH);
@@ -143,16 +167,16 @@ void detectAccessoryID() {
   bool high1 = (v1 > 2.5);
   bool high2 = (v2 > 2.5);
 
-  if (high1 && !high2) {
+  if (!high1 && !high2) {
     accessoryID = 1;
   } else if (!high1 && high2) {
     accessoryID = 2;
-  } else if (!high1 && !high2) {
+  } else if (high1 && !high2) {
     accessoryID = 3;
   } else if (high1 && high2) {
     accessoryID = 4;
   } else {
-    accessoryID = 0;  // Fallback if undefined
+    accessoryID = 0;
   }
 }
 
@@ -180,6 +204,7 @@ void streamSensorData() {
     Serial.print(rs485Address);
 
     Serial.print("|ACC:");
-    Serial.println(accessoryID);  // Now ends with Accessory ID
+    Serial.println(accessoryID);
   }
 }
+

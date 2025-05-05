@@ -1,26 +1,46 @@
+# === Direct Imports ===
 import eventlet
 eventlet.monkey_patch()
-from flask import Flask, request, jsonify, render_template_string, send_from_directory
-from flask_socketio import SocketIO, emit
-import threading
+import csv
+import datetime
+import io
+import json
+import logging
+import os
+import pty
+import queue
+import re
+import RPi.GPIO as GPIO
 import serial
+import socket
+import subprocess
+import sys
+import threading
 import time
+
+# === From Imports (Alphabetized with Submodules Sorted) ===
 from collections import deque
 from datetime import datetime, timedelta
-import subprocess
-import os
-import json
-import csv
-import RPi.GPIO as GPIO
-import socket
+from flask import Flask, jsonify, render_template_string, request, send_from_directory
+from flask_socketio import SocketIO, emit
+from io import StringIO
 from luma.core.interface.serial import i2c
 from luma.oled.device import sh1106
 from PIL import Image, ImageDraw, ImageFont, ImageOps
-import logging
-import queue
 
 debugg = False
+debug_sid = None
 
+# Create pseudo-terminal
+master_fd, slave_fd = pty.openpty()
+shell = subprocess.Popen(
+    ["/bin/bash"],
+    stdin=slave_fd,
+    stdout=slave_fd,
+    stderr=slave_fd,
+    universal_newlines=True,
+    bufsize=0,
+)
 
 SESSION_LOG = {}
 SESSION_LOG_PATH = ""
@@ -444,19 +464,129 @@ def dashboard():
 with open(os.path.join(web_folder, 'debug.html'), 'r') as f:
     debug_html = f.read()
 
-#@app.route('/debug')
+@app.route('/debug')
 def debug():
-    return render_template_string(debug_html)
-
-@app.route('/api/voltage_mode')
-def get_voltage_mode():
-    return jsonify({'voltage_mode': current_voltage_index})
+    return send_from_directory(web_folder, "debug.html")
+@socketio.on('set_debug')
+def handle_set_debug(state):
+    global debugg
+    debugg = bool(state)
+    msg = "? Debug mode enabled.\n" if debugg else "? Debug mode disabled.\n"
+    socketio.emit("shell_output", msg)
 
 @socketio.on('ios_log_batch')
 def handle_ios_log_batch(data):
     lines = data.get('lines', [])
     for line in lines:
         socketio.emit('ios_log', {'line': line})
+@socketio.on('send_command')
+def handle_command(command):
+    try:
+        os.write(master_fd, (command + "\n").encode())
+    except Exception as e:
+        socketio.emit('command_response', f"?? Error sending command: {e}\n")
+
+
+@app.route('/latest-log')
+def latest_log():
+    if not debugg:
+        return "Unauthorized", 403
+    log_dir = os.path.expanduser("/home/pi/Desktop/Logs")
+    json_files = sorted(glob.glob(os.path.join(log_dir, "*.json")), key=os.path.getmtime, reverse=True)
+    if not json_files:
+        return "No logs found", 404
+    return send_file(json_files[0], mimetype='application/json')
+
+@socketio.on('debug_pin')
+def handle_debug_pin(pin):
+    global debugg, debug_sid
+
+    actual = ''.join(str(d) for d in server_pin)
+    submitted = str(pin).strip()
+
+    if submitted == actual:
+        debugg = True
+        debug_sid = request.sid  # Store who accessed debug mode
+
+        # Log debug access
+        connection_type = "socket"
+        voltage_mode = VOLTAGE_MODES[current_voltage_index]
+        digital_modes = get_current_digital_modes()
+        start_session_log(connection_type, voltage_mode, digital_modes)
+        append_session_log("? Debug Access Granted", "INFO")
+
+        emit('pin_result', {'success': True})
+    else:
+        emit('pin_result', {'success': False})
+
+@socketio.on('index_pin')
+def handle_index_pin(pin):
+    global server_pin
+    actual = ''.join(str(d) for d in server_pin)  # The same logic used for menu-auth PIN
+    if str(pin).strip() == actual:
+        emit('pin_result', {'success': True})
+    else:
+        emit('pin_result', {'success': False})
+
+
+@socketio.on('disconnect')
+def handle_disconnect(sid):
+    global debugg, debug_sid
+    if request.sid == debug_sid:
+        debugg = False
+        append_session_log("? Debug session ended", "INFO")
+
+ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+
+
+def read_shell_output():
+    buffer = ""
+    while True:
+        try:
+            
+            output = os.read(master_fd, 1024).decode(errors='ignore')
+            cleaned = ansi_escape.sub('', output)
+            
+            buffer += output
+
+            # Echo to both windows
+            socketio.emit('command_response', cleaned)
+
+            # Optional: also extract specific server-side messages to show in shell_output
+            if "debugging" in output or "Client connected" in output:
+                socketio.emit('shell_output', output)
+
+        except Exception as e:
+            print("Shell read error:", e)
+            break
+
+socketio.start_background_task(read_shell_output)
+
+
+
+
+def redirect_stdout_and_stderr(socketio):
+    logger = SocketIOLogger(socketio)
+    sys.stdout = logger
+    sys.stderr = logger
+
+
+class SocketIOLogger(io.TextIOBase):
+    def __init__(self, socketio_instance, channel='shell_output'):
+        super().__init__()
+        self.socketio = socketio_instance
+        self.channel = channel
+
+    def write(self, message):
+        if message.strip():
+            self.socketio.start_background_task(self.socketio.emit, self.channel, message)
+
+    def flush(self):
+        pass  # Not needed for real-time emit
+
+def redirect_stdout_and_stderr(socketio_instance):
+    sys.stdout = SocketIOLogger(socketio_instance)
+    sys.stderr = SocketIOLogger(socketio_instance)
 
 
 def draw_scrolling_text(draw, y, label, scroll_key, text, font, max_width):
@@ -753,17 +883,29 @@ def append_session_log(message, level="INFO"):
     except Exception as e:
         print("❌ Failed to write session log:", e)
 
-if __name__ == "__main__":
+class ShellRedirector(StringIO):
+    def write(self, msg):
+        msg = msg.strip()
+        if not msg:
+            return 0
+        if "reloading Detected change" in msg:
+            return len(msg)  # Ignore noisy logs (optional)
+        socketio.emit('shell_output', msg + '\n')
+        return len(msg)
 
+    def flush(self):
+        pass
+if __name__ == "__main__":
     ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
 
     threading.Thread(target=menu_monitor, daemon=True).start()
     threading.Thread(target=usb_monitor, daemon=True).start()
-    reader_thread = threading.Thread(target=serial_reader, daemon=True)
-    reader_thread.start()
+    threading.Thread(target=serial_reader, daemon=True).start()
 
-    socketio.run(app, host="0.0.0.0", port=5000, debug = debugg)
+    sys.stdout = ShellRedirector()
+    sys.stderr = ShellRedirector()
+
     if debugg:
         print("Debugging mode enabled")
- 
 
+    socketio.run(app, host="0.0.0.0", port=5000, debug=debugg)

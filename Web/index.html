@@ -6,78 +6,17 @@
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body {
-      background-color: #121212;
-      color: white;
-      font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-      padding: 0;
-      height: 100vh;
-      overflow-y: auto;
-    }
-    .tabs {
-      display: flex;
-      justify-content: center;
-      background-color: #1e1e1e;
-      padding: 10px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    .tab-button {
-      margin: 0 10px;
-      padding: 10px 20px;
-      background: #2c2c2c;
-      border: none;
-      border-radius: 8px;
-      color: white;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    .tab-button:hover {
-      background-color: #3c3c3c;
-      box-shadow: 0 0 8px rgba(255,255,255,0.2);
-    }
-    .tab-content {
-      display: none;
-      padding: 20px;
-    }
-    .center-button {
-      text-align: center;
-      margin-top: 10px;
-    }
-    .split-toggle {
-      padding: 10px 20px;
-      border: 2px solid white;
-      background: none;
-      color: white;
-      border-radius: 8px;
-      cursor: pointer;
-      margin: 5px;
-    }
-    .split-toggle.active {
-      background-color: white;
-      color: #121212;
-    }
-    #analog-charts, #digital-charts {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
-    }
-    #analog-charts canvas,
-    #digital-charts canvas {
-      height: 250px;
-      width: 90%;
-    }
-    #rs485-console {
-      background: #1e1e1e;
-      padding: 20px;
-      height: 400px;
-      overflow-y: auto;
-      white-space: pre-wrap;
-      border-radius: 10px;
-    }
+    body { background-color: #121212; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; height: 100vh; overflow-y: auto; }
+    .tabs { display: flex; justify-content: center; background-color: #1e1e1e; padding: 10px; position: sticky; top: 0; z-index: 100; }
+    .tab-button { margin: 0 10px; padding: 10px 20px; background: #2c2c2c; border: none; border-radius: 8px; color: white; cursor: pointer; transition: 0.3s; }
+    .tab-button:hover { background-color: #3c3c3c; box-shadow: 0 0 8px rgba(255,255,255,0.2); }
+    .tab-content { display: none; padding: 20px; }
+    .center-button { text-align: center; margin-top: 10px; }
+    .split-toggle { padding: 10px 20px; border: 2px solid white; background: none; color: white; border-radius: 8px; cursor: pointer; margin: 5px; }
+    .split-toggle.active { background-color: white; color: #121212; }
+    #analog-charts, #digital-charts { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+    #analog-charts canvas, #digital-charts canvas { height: 250px; width: 90%; }
+    #rs485-console { background: #1e1e1e; padding: 20px; height: 400px; overflow-y: auto; white-space: pre-wrap; border-radius: 10px; }
   </style>
 </head>
 <body>
@@ -93,7 +32,7 @@
   <h2>Analog Sensor Data</h2>
   <div id="analog-charts"></div>
   <div class="center-button">
-    <button id="analog-split-btn" class="split-toggle" onclick="toggleAnalogView()">Toggle Split View</button>
+    <!--<button id="analog-split-btn" class="split-toggle" onclick="toggleAnalogView()">Toggle Split View</button>-->
   </div>
 </div>
 
@@ -101,7 +40,7 @@
   <h2>Digital Input States</h2>
   <div id="digital-charts"></div>
   <div class="center-button">
-    <button id="digital-split-btn" class="split-toggle" onclick="toggleDigitalView()">Toggle Split View</button>
+    <!--<button id="digital-split-btn" class="split-toggle" onclick="toggleDigitalView()">Toggle Split View</button>-->
   </div>
 </div>
 
@@ -132,6 +71,14 @@
 <script>
 const socket = io({ transports: ['websocket'] });
 
+socket.on('connect', () => {
+  console.log('â Connected to Socket.IO server!');
+});
+
+socket.on('connect_error', (err) => {
+  console.error('â Connection error:', err);
+});
+
 let analogSplitView = false;
 let digitalSplitView = false;
 let analogCharts = [];
@@ -160,14 +107,9 @@ function createBaseOptions(yMax) {
   return {
     responsive: true,
     maintainAspectRatio: false,
-    elements: {
-      line: { tension: 0, fill: false, borderWidth: 2 },
-      point: { radius: 1, hitRadius: 5, hoverRadius: 5 }
-    },
+    elements: { line: { tension: 0, fill: false, borderWidth: 2 }, point: { radius: 1, hitRadius: 5, hoverRadius: 5 } },
     spanGaps: true,
-    scales: {
-      y: { min: 0, max: yMax }
-    }
+    scales: { y: { min: 0, max: yMax } }
   };
 }
 
@@ -175,7 +117,6 @@ function renderAnalogCharts() {
   document.getElementById('analog-charts').innerHTML = '';
   analogCharts = [];
   const options = createBaseOptions(voltageMap[currentVoltageMode] || 5);
-
   if (analogSplitView) {
     for (let i = 0; i < 4; i++) {
       const canvas = document.createElement('canvas');
@@ -191,12 +132,7 @@ function renderAnalogCharts() {
     document.getElementById('analog-charts').appendChild(canvas);
     analogCharts.push(new Chart(canvas.getContext('2d'), {
       type: 'line',
-      data: {
-        labels: [],
-        datasets: [0,1,2,3].map(i => ({
-          label: `A${i}`, data: [], borderColor: getColor(i)
-        }))
-      },
+      data: { labels: [], datasets: [0,1,2,3].map(i => ({ label: `A${i}`, data: [], borderColor: getColor(i) })) },
       options
     }));
   }
@@ -206,7 +142,6 @@ function renderDigitalCharts() {
   document.getElementById('digital-charts').innerHTML = '';
   digitalCharts = [];
   const options = createBaseOptions(1);
-
   if (digitalSplitView) {
     for (let i = 0; i < 4; i++) {
       const canvas = document.createElement('canvas');
@@ -222,12 +157,7 @@ function renderDigitalCharts() {
     document.getElementById('digital-charts').appendChild(canvas);
     digitalCharts.push(new Chart(canvas.getContext('2d'), {
       type: 'line',
-      data: {
-        labels: [],
-        datasets: [0,1,2,3].map(i => ({
-          label: `D${i}`, data: [], borderColor: getColor(i)
-        }))
-      },
+      data: { labels: [], datasets: [0,1,2,3].map(i => ({ label: `D${i}`, data: [], borderColor: getColor(i) })) },
       options
     }));
   }
@@ -263,15 +193,22 @@ socket.on('sensor_update', (data) => {
     return;
   }
 
+  if (typeof data.voltage_mode === 'number') {
+    currentVoltageMode = data.voltage_mode;
+  }
+
+  if (analogCharts.length === 0) {
+    openTab('analog');
+    renderAnalogCharts();
+    renderDigitalCharts();
+  }
+
   if (analogCharts.length) {
     if (analogSplitView) {
       analogCharts.forEach((chart, index) => {
         chart.data.labels.push(now);
         chart.data.datasets[0].data.push(data.analog[index] ?? 0);
-        if (chart.data.labels.length > 20) {
-          chart.data.labels.shift();
-          chart.data.datasets[0].data.shift();
-        }
+        if (chart.data.labels.length > 20) { chart.data.labels.shift(); chart.data.datasets[0].data.shift(); }
         chart.update('none');
       });
     } else {
@@ -290,28 +227,40 @@ socket.on('sensor_update', (data) => {
 });
 
 socket.on('rs485_output', (data) => {
-  const console = document.getElementById('rs485-console');
-  console.textContent += data.line + '\n';
-  console.scrollTop = console.scrollHeight;
+  const consoleEl = document.getElementById('rs485-console');
+  consoleEl.textContent += data.line + '\n';
+  consoleEl.scrollTop = consoleEl.scrollHeight;
 });
 
 socket.on('log_timer_update', (time) => {
   document.getElementById('log-timer').textContent = 'Time Remaining: ' + time;
 });
+ 
 
-fetch('/dashboard/api/voltage_mode')
-  .then(response => response.json())
-  .then(data => {
-    currentVoltageMode = data.voltage_mode;
-    openTab('analog');
-    renderAnalogCharts();
-    renderDigitalCharts();
-  })
-  .catch(err => {
-    console.error('Could not fetch voltage mode:', err);
-    window.location.href = '/debug';
-  });
+window.addEventListener('load', () => {
+  const pin = prompt("Enter PIN to access dashboard:");
+  if (pin) {
+    socket.emit("index_pin", pin);
+  } else {
+    alert('Please enter a valid PIN');
+    document.body.innerHTML = "<h1 style='color: red; text-align: center;'>Access Denied</h1>";
+  }
+});
+
+socket.on('pin_result', data => {
+  if (!data.success) {
+    alert("PIN validation failed. Please try again.");
+    document.body.innerHTML = "<h1 style='color: red; text-align: center;'>Access Denied</h1>";
+  } else {
+    // Proceed with loading the dashboard
+    alert("PIN validation successful! Loading the dashboard...");
+    // You can show the dashboard or make additional calls here.
+  }
+});
+
+
 </script>
 
 </body>
 </html>
+

@@ -1,161 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Debug Console</title>
-    <script src="/socket.io/socket.io.min.js"></script>
-    <style>
-        body {
-            background-color: #121212;
-            color: white;
-            font-family: 'Segoe UI', sans-serif;
-            margin: 0;
-            padding: 0;
-            overflow-y: auto;
-            height: 100vh;
-        }
-        .top-bar {
-            display: flex;
-            justify-content: center;
-            background-color: #1e1e1e;
-            padding: 15px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        button {
-            background-color: #2c2c2c;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            margin: 0 5px;
-        }
-        button:hover {
-            background-color: #3c3c3c;
-        }
-        .log-box {
-            background: #1e1e1e;
-            margin: 20px;
-            padding: 15px;
-            height: 300px;
-            overflow-y: auto;
-            border-radius: 10px;
-            white-space: pre-wrap;
-        }
-        .section-title {
-            text-align: center;
-            margin-top: 10px;
-            font-size: 20px;
-        }
-        .terminal-input {
-            width: 90%;
-            padding: 10px;
-            margin: 10px auto;
-            display: block;
-            background: #2c2c2c;
-            color: white;
-            border: 1px solid #555;
-            border-radius: 8px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Debug Page with Logs</title>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <style>
+    body {
+      background-color: #000;
+      color: #0f0;
+      font-family: monospace;
+      margin: 0;
+      padding: 0;
+    }
+
+    #debugToggle {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #000;
+      color: #0f0;
+      border: 1px solid #0f0;
+      padding: 6px 12px;
+      cursor: pointer;
+    }
+
+    #debugToggle:hover {
+      background-color: #0f0;
+      color: #000;
+    }
+
+    #shell-window, #terminal {
+      width: 100%;
+      padding: 10px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      border-bottom: 1px solid #0f0;
+    }
+
+    #shell-window {
+      height: 400px;
+      background-color: #111;
+    }
+
+    #terminal {
+      height: 200px;
+      background-color: #000;
+    }
+
+    #input-area {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      background-color: #111;
+      border-top: 1px solid #0f0;
+    }
+
+    #cmdInput {
+      flex-grow: 1;
+      background-color: #000;
+      color: #0f0;
+      border: 1px solid #0f0;
+      padding: 5px;
+      font-family: monospace;
+      font-size: 16px;
+    }
+
+    button {
+      margin-left: 10px;
+      background-color: #000;
+      color: #0f0;
+      border: 1px solid #0f0;
+      padding: 6px 12px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0f0;
+      color: #000;
+    }
+  </style>
 </head>
 <body>
+  <button id="debugToggle" onclick="toggleDebug()">Debug Mode: On</button>
 
-<div class="top-bar">
-    <button onclick="toggleDebug()">Toggle Debug Mode</button>
-</div>
+  <div id="shell-window"></div>
+  <div id="terminal"></div>
 
-<div class="section-title">iOS App Logs</div>
-<div id="ios-log" class="log-box"></div>
-<div style="text-align:center">
-    <button onclick="saveLog('ios-log')">Save iOS Log</button>
-    <button onclick="clearLog('ios-log')">Clear</button>
-</div>
+  <div id="input-area">
+    <input type="text" id="cmdInput" placeholder="Enter command..." autocomplete="off">
+    <button onclick="sendCommand()">Send</button>
+    <button onclick="openLog()">Open Latest Log</button>
+  </div>
 
-<div class="section-title">Python Server Logs</div>
-<div id="python-log" class="log-box"></div>
-<div style="text-align:center">
-    <button onclick="saveLog('python-log')">Save Python Log</button>
-    <button onclick="clearLog('python-log')">Clear</button>
-</div>
+  <script>
+    const socket = io();
+    const shellWindow = document.getElementById('shell-window');
+    const terminal = document.getElementById('terminal');
+    const cmdInput = document.getElementById('cmdInput');
+    const debugButton = document.getElementById('debugToggle');
+    let debugEnabled = true;
 
-<div class="section-title">System Logs</div>
-<div id="system-log" class="log-box"></div>
-<div style="text-align:center">
-    <button onclick="saveLog('system-log')">Save System Log</button>
-    <button onclick="clearLog('system-log')">Clear</button>
-</div>
+    // Shell output
+    socket.on('shell_output', data => {
+      shellWindow.textContent += data + '\n';
+      shellWindow.scrollTop = shellWindow.scrollHeight;
+    });
 
-<div class="section-title">Server Terminal</div>
-<div id="terminal-log" class="log-box"></div>
-<input id="terminal-input" class="terminal-input" placeholder="Type terminal command and press Enter...">
+    // Terminal command result
+    socket.on('command_response', data => {
+      terminal.textContent += data;
+      terminal.scrollTop = terminal.scrollHeight;
+    });
 
-<script>
-const socket = io({ transports: ['websocket'] });
+    // PIN auth result
+    socket.on('pin_result', data => {
+      if (data.success) {
+        console.log("? PIN validated.");
+      } else {
+        requestPin("PIN validation failed. Please try again:");
+      }
+    });
 
-// Log buffers
-const logs = {
-    'ios-log': [],
-    'python-log': [],
-    'system-log': [],
-    'terminal-log': []
-};
-
-function addLog(id, line) {
-    const box = document.getElementById(id);
-    const timestamp = new Date().toLocaleString();
-    const formatted = `${timestamp} ${line}`;
-    logs[id].push(formatted);
-    box.textContent += formatted + "\\n";
-    box.scrollTop = box.scrollHeight;
-}
-
-function saveLog(id) {
-    const text = logs[id].join("\\n");
-    const blob = new Blob([text], { type: 'text/plain' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = id + "_" + new Date().toISOString().replace(/[:.]/g, '-') + ".txt";
-    link.click();
-}
-
-function clearLog(id) {
-    logs[id] = [];
-    document.getElementById(id).textContent = '';
-}
-
-function toggleDebug() {
-    socket.emit('toggle_debug');
-}
-
-// Handle logs from server
-socket.on('ios_log', data => {
-    if (data.line) addLog('ios-log', data.line);
-});
-socket.on('python_log', data => {
-    if (data.line) addLog('python-log', data.line);
-});
-socket.on('system_log', data => {
-    if (data.line) addLog('system-log', data.line);
-});
-socket.on('terminal_output', data => {
-    if (data.line) addLog('terminal-log', data.line);
-});
-
-// Terminal Input
-const termInput = document.getElementById('terminal-input');
-termInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-        const cmd = termInput.value.trim();
-        if (cmd.length > 0) {
-            socket.emit('terminal_command', { command: cmd });
-            termInput.value = '';
-        }
+    function sendCommand() {
+      const cmd = cmdInput.value.trim();
+      if (cmd) {
+        terminal.textContent += `> ${cmd}\n`;
+        socket.emit('send_command', cmd);
+        cmdInput.value = '';
+      }
     }
-});
-</script>
 
+    cmdInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') sendCommand();
+    });
+
+    function openLog() {
+      window.open('/latest-log', '_blank');
+    }
+
+    function toggleDebug() {
+      debugEnabled = !debugEnabled;
+      socket.emit('set_debug', debugEnabled);
+      debugButton.textContent = debugEnabled ? "Debug Mode: On" : "Debug Mode: Off";
+    }
+
+    function requestPin(message = "Enter PIN to access debug tools:") {
+      const pin = prompt(message);
+      if (pin !== null && pin.trim() !== "") {
+        socket.emit("debug_pin", pin.trim());
+      } else {
+        requestPin("PIN validation failed. Please try again:");
+      }
+    }
+
+    window.addEventListener('load', () => {
+      requestPin();
+    });
+  </script>
 </body>
 </html>
