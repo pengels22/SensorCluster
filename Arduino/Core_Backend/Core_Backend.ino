@@ -46,7 +46,7 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(SHUTDOWN_PIN), wakeISR, RISING);
 
   pixel.begin();
-  pixel.setBrightness(5);
+  pixel.setBrightness(1);
   applyVoltageMode(voltageMode);  // Set initial color and relays
 
   for (int i = 0; i < 4; i++) {
