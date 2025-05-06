@@ -46,7 +46,7 @@ SESSION_LOG = {}
 SESSION_LOG_PATH = ""
 SESSION_LOG_DIR = os.path.expanduser("~/Desktop/Logs")
 suppress_menu_draw = False
-
+SHUTDOWN_GPIO = 5
 def append_session_log(message, level="INFO"):
     global SESSION_LOG, SESSION_LOG_PATH
 
@@ -803,7 +803,6 @@ def menu_monitor():
                         elif confirmation_selection == 0:
                             if power_submenu_index == 0:
                                 show_temp_message("Shutting down...")
-                                time.sleep(2)
                                 clear_oled()
                                 GPIO.setmode(GPIO.BCM)
                                 GPIO.setup(SHUTDOWN_GPIO, GPIO.OUT)
@@ -814,7 +813,6 @@ def menu_monitor():
 
                             else:
                                 show_temp_message("Rebooting...")
-                                time.sleep(2)
                                 clear_oled()
                                 GPIO.setmode(GPIO.BCM)
                                 GPIO.setup(SHUTDOWN_GPIO, GPIO.OUT)
@@ -829,6 +827,7 @@ def menu_monitor():
                         else:
                             confirming_power_action = False
                             menu_editing = False
+
 
         # === UP / DOWN HANDLING ===
         if menu_active:
