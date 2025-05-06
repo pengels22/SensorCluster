@@ -3,8 +3,16 @@
 import RPi.GPIO as GPIO
 import time
 import subprocess
+import os
 
 SHUTDOWN_GPIO = 5  # GPIO pin connected to Arduino D10
+
+def stop_sensorcluster():
+    try:
+        subprocess.run(["systemctl", "stop", "sensorcluster.service"], check=True)
+        print("[Systemd] sensorcluster.service stopped.")
+    except subprocess.CalledProcessError as e:
+        print(f"[Systemd] Failed to stop sensorcluster.service: {e}")
 
 def blank_oled():
     try:
@@ -19,11 +27,12 @@ def signal_arduino_sleep():
     GPIO.setup(SHUTDOWN_GPIO, GPIO.OUT)
     GPIO.output(SHUTDOWN_GPIO, GPIO.LOW)
     print("[GPIO] Pin 5 pulled LOW to signal Arduino sleep.")
-    time.sleep(1)  # Allow Arduino time to detect
+    time.sleep(1)
     GPIO.cleanup()
 
 def main():
     print("[Shutdown] Starting cleanup routine...")
+    stop_sensorcluster()
     signal_arduino_sleep()
     blank_oled()
     print("[Shutdown] Done.")

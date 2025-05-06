@@ -795,7 +795,7 @@ def menu_monitor():
                         elif confirmation_selection == 0:
                             if power_submenu_index == 0:
                                 show_temp_message("Shutting down...")
-                                os.system("sudo shutdown now")
+                                os.system("sudo shutdown -h now")
                             else:
                                 show_temp_message("Rebooting...")
                                 os.system("sudo reboot")
