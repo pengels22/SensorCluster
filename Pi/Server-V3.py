@@ -41,7 +41,7 @@ shell = subprocess.Popen(
     universal_newlines=True,
     bufsize=0,
 )
-
+GPIO.setwarnings(False)
 SESSION_LOG = {}
 SESSION_LOG_PATH = ""
 SESSION_LOG_DIR = os.path.expanduser("~/Desktop/Logs")
