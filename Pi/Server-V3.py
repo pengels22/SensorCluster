@@ -45,6 +45,8 @@ shell = subprocess.Popen(
 SESSION_LOG = {}
 SESSION_LOG_PATH = ""
 SESSION_LOG_DIR = os.path.expanduser("~/Desktop/Logs")
+suppress_menu_draw = False
+
 def append_session_log(message, level="INFO"):
     global SESSION_LOG, SESSION_LOG_PATH
 
@@ -843,23 +845,29 @@ def menu_monitor():
         last_menu = menu
         last_up = up
         last_down = down
-        draw_menu()
+        if not suppress_menu_draw:
+            draw_menu()
         time.sleep(0.05)
 
 
 def show_temp_message(text, duration=2):
+    global suppress_menu_draw
     if not oled_available:
         return
     try:
-        image = Image.new("1", (WIDTH, HEIGHT))
+        suppress_menu_draw = True  # Pause menu drawing
+        image = Image.new("1", (WIDTH, HEIGHT), 0)
         draw = ImageDraw.Draw(image)
         w = draw.textlength(text, font=font)
         draw.text(((WIDTH - w) // 2, HEIGHT // 2 - 6), text, font=font, fill=255)
         oled.display(image)
         time.sleep(duration)
-        draw_menu()
     except Exception as e:
         append_session_log("? OLED temp msg error:", e)
+    finally:
+        suppress_menu_draw = False
+        draw_menu()
+
 def start_session_log(connection_type, voltage_mode, digital_modes):
     global SESSION_LOG, SESSION_LOG_PATH
 
