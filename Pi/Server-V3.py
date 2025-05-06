@@ -715,7 +715,15 @@ def draw_menu():
             append_session_log(f"?? OLED display error: {e}")
             oled_available = False
 
-
+def clear_oled():
+    if not oled_available:
+        return
+    try:
+        image = Image.new("1", (WIDTH, HEIGHT), 0)  # All black
+        oled.display(image)
+        print("[OLED] Screen cleared.")
+    except Exception as e:
+        append_session_log("? Failed to clear OLED:", e)
 def menu_monitor():
     global menu_index, menu_active, current_voltage_index, menu_last_activity
     global pin_entry_digit, entered_pin, pin_editing, server_pin
@@ -795,9 +803,24 @@ def menu_monitor():
                         elif confirmation_selection == 0:
                             if power_submenu_index == 0:
                                 show_temp_message("Shutting down...")
+                                time.sleep(2)
+                                clear_oled()
+                                GPIO.setmode(GPIO.BCM)
+                                GPIO.setup(SHUTDOWN_GPIO, GPIO.OUT)
+                                GPIO.output(SHUTDOWN_GPIO, GPIO.LOW)
+                                print("[GPIO] Pin 5 pulled LOW to signal Arduino sleep.")
+                                time.sleep(1)
                                 os.system("sudo shutdown -h now")
+
                             else:
                                 show_temp_message("Rebooting...")
+                                time.sleep(2)
+                                clear_oled()
+                                GPIO.setmode(GPIO.BCM)
+                                GPIO.setup(SHUTDOWN_GPIO, GPIO.OUT)
+                                GPIO.output(SHUTDOWN_GPIO, GPIO.LOW)
+                                print("[GPIO] Pin 5 pulled LOW to signal Arduino sleep.")
+                                time.sleep(1)
                                 os.system("sudo reboot")
                             menu_active = False
                             menu_editing = False
