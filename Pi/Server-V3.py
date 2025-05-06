@@ -47,6 +47,8 @@ SESSION_LOG_PATH = ""
 SESSION_LOG_DIR = os.path.expanduser("~/Desktop/Logs")
 suppress_menu_draw = False
 SHUTDOWN_GPIO = 5
+GPIO.setup(SHUTDOWN_GPIO, GPIO.OUT)
+GPIO.output(SHUTDOWN_GPIO, GPIO.HIGH)
 def append_session_log(message, level="INFO"):
     global SESSION_LOG, SESSION_LOG_PATH
 
