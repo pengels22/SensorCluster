@@ -126,7 +126,7 @@ def usb_monitor():
         if new_usb and ACTIVE_LOG_DIR != new_usb:
             append_session_log(f"? USB inserted ? switching log path to: {new_usb}")
             ACTIVE_LOG_DIR = new_usb
-            show_temp_message("USB Logging Enabled")
+            show_temp_message("USB Detected")
             socketio.emit("usb_event", {
                 "status": "inserted",
                 "path": ACTIVE_LOG_DIR
