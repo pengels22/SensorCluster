@@ -28,7 +28,7 @@ def signal_arduino_sleep():
     GPIO.output(SHUTDOWN_GPIO, GPIO.LOW)
     print("[GPIO] Pin 5 pulled LOW to signal Arduino sleep.")
     time.sleep(1)
-    GPIO.cleanup()
+    
 
 def main():
     print("[Shutdown] Starting cleanup routine...")
