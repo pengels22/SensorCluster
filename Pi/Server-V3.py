@@ -375,15 +375,21 @@ def handle_dio_mode(data):
             dio_config["digital"][pin] = mode
 
 
-@socketio.on("write_digital")
-def handle_write_digital(data):
-    pin = data.get("pin")
-    value = data.get("value")
-    if pin is not None and value in [0, 1]:
-        ser.write(f"DWRITE:{pin}:{value}\n".encode())
-        if "digital" in latest_data and pin < len(latest_data["digital"]):
-            latest_data["digital"][pin] = value
-        socketio.emit("sensor_update", latest_data, broadcast=True)
+@@socketio.on("set_digital_output")
+def handle_set_digital_output(data):
+    try:
+        pin = int(data.get("pin"))
+        state = data.get("state")
+
+        if state not in [True, False]:
+            print(f"[WARN] Invalid output state: {state}")
+            return
+
+        value = 1 if state else 0
+        send_serial_command(f"SET:{pin}:{value}")
+        append_session_log(f"DIO pin {pin} toggled {state_str}", level="INFO")
+    except Exception as e:
+        print(f"[ERROR] set_digital_output failed: {e}")
 
 @socketio.on("send_rs485")
 def handle_send_rs485(data):
