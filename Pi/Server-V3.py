@@ -375,7 +375,7 @@ def handle_dio_mode(data):
             dio_config["digital"][pin] = mode
 
 
-@@socketio.on("set_digital_output")
+@socketio.on("set_digital_output")
 def handle_set_digital_output(data):
     try:
         pin = int(data.get("pin"))
