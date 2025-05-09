@@ -369,7 +369,7 @@ def handle_dio_mode(data):
     pin = data.get("pin")
     mode = data.get("mode")
 
-    if pin is not None and mode in ["In", "Out"]:
+    if pin is not None and mode in ["In", "Out", "Pullup", "Pulldown"]:
         ser.write(f"DIO:{pin}:{mode}\n".encode())
         if pin < 4:  # Only track digital IO (D0?D3)
             dio_config["digital"][pin] = mode
