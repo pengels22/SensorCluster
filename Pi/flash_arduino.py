@@ -8,7 +8,7 @@ import serial
 from pathlib import Path
 
 # === CONFIGURATION ===
-RESET_PIN = 23
+RESET_PIN = 24
 POWER_PIN = 5
 SERIAL_PORT = "/dev/serial0"
 BAUD_RATE = "115200"
