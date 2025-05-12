@@ -8,8 +8,8 @@ import serial
 from pathlib import Path
 
 # === CONFIGURATION ===
-RESET_PIN = 24
-POWER_PIN = 5
+RESET_PIN = 23
+POWER_PIN = 24
 SERIAL_PORT = "/dev/serial0"
 BAUD_RATE = "115200"
 MCU = "atmega328p"
