@@ -30,7 +30,7 @@ from luma.core.interface.serial import i2c
 from luma.oled.device import sh1106
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 from adafruit_ina219 import INA219
-i2c_bus = busio.I2C(board.SCL, bord.SDA)
+i2c_bus = busio.I2C(board.SCL, board.SDA)
 ina219 = INA219(i2c_bus, addr=0x40)  # Try 0x45 if needed
 
 debugg = False
