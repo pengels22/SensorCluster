@@ -30,6 +30,7 @@ from luma.core.interface.serial import i2c
 from luma.oled.device import sh1106
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 from adafruit_ina219 import INA219
+i2c_bus = busio.I2C(board.SCL, bord.SDA)
 ina219 = INA219(i2c_bus, addr=0x40)  # Try 0x45 if needed
 
 debugg = False
@@ -104,6 +105,15 @@ dio_config = {
 
 
 
+def get_battery_status():
+    try:
+        voltage = ina219.bus_voltage
+        # Map voltage range to percent (3.2V?4.2V)
+        percent = min(100, max(0, int((voltage - 3.2) / (4.2 - 3.2) * 100)))
+        return voltage, percent
+    except Exception as e:
+        print(f"[INA219] Battery read error: {e}")
+        return None, 0
 
 def find_usb_drive():
     global ACTIVE_LOG_DIR
@@ -236,13 +246,14 @@ def is_bluetooth_active():
     return "UP RUNNING" in result
 
 # === DRAW ICONS ===
-def draw_battery(draw, x, y, voltage_avg):
-    draw.rectangle((x, y, x+20, y+10), outline=255, fill=0)
-    draw.rectangle((x+21, y+3, x+23, y+7), fill=255)
-    if voltage_avg >= 4.0:
-        draw.rectangle((x+2, y+2, x+18, y+8), fill=255)
-    elif voltage_avg >= 3.0:
-        draw.rectangle((x+2, y+2, x+10, y+8), fill=255)
+def draw_battery(draw, x, y, voltage):
+    try:
+        percent = min(100, max(0, int((voltage - 3.2) / (4.2 - 3.2) * 100)))
+        draw.rectangle((x, y, x + 20, y + 10), outline="white", fill="black")
+        fill_width = int(18 * percent / 100)
+        draw.rectangle((x + 1, y + 1, x + 1 + fill_width, y + 9), fill="white")
+    except Exception as e:
+        print(f"Error drawing battery: {e}")
 
 def draw_wifi(draw, image, x, y):
     if WIFI_ICON:
@@ -654,7 +665,8 @@ def draw_menu():
     draw.rectangle((0, 0, WIDTH, HEIGHT), outline=0, fill=0)
 
     # === Top Status Bar ===
-    voltage_avg = (latest_data.get("battery1", 0))
+    voltage_avg, _ = get_battery_status()
+
     draw_battery(draw, 0, Y_STATUS, voltage_avg)
     x_wifi = 30
     x_bt = 45
