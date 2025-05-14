@@ -665,7 +665,8 @@ def draw_menu():
     draw.rectangle((0, 0, WIDTH, HEIGHT), outline=0, fill=0)
 
     # === Top Status Bar ===
-    voltage_avg, _ = get_battery_status()
+    voltage_avg = ina.bus_voltage
+
 
     draw_battery(draw, 0, Y_STATUS, voltage_avg)
     x_wifi = 30
