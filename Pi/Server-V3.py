@@ -665,7 +665,7 @@ def draw_menu():
     draw.rectangle((0, 0, WIDTH, HEIGHT), outline=0, fill=0)
 
     # === Top Status Bar ===
-    voltage_avg = ina.bus_voltage
+    voltage_avg = ina219.bus_voltage
 
 
     draw_battery(draw, 0, Y_STATUS, voltage_avg)
