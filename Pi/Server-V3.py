@@ -655,6 +655,8 @@ def draw_menu():
     Y_LINE_1 = LINE_HEIGHT * 2
     Y_LINE_2 = LINE_HEIGHT * 3
     Y_LINE_3 = LINE_HEIGHT * 4
+    WIDTH = 128
+    HEIGHT = 64
 
     ip = get_ip()
     ts_ip = get_tailscale_ip()
