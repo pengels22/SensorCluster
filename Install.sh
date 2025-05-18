@@ -43,9 +43,7 @@ pip3 install --break-system-packages \
   pyserial \
   RPi.GPIO \
   luma.oled \
-  pillow \
-  adafruit-circuitpython-ina219 \
-  bluezero
+  pillow
 
 # === Add user to groups ===
 echo "👤 Adding '$USER' to system groups..."
@@ -125,7 +123,6 @@ User=$USER
 WantedBy=multi-user.target
 EOF
 
-# Enable and start the service
 sudo systemctl daemon-reexec
 sudo systemctl enable "$SERVICE_NAME"
 sudo systemctl start "$SERVICE_NAME"
@@ -162,6 +159,62 @@ fi
 # === Show final folder structure ===
 echo "📂 Final folder structure:"
 tree -L 2 "$CLUSTER_DIR" || ls -R "$CLUSTER_DIR"
+
+# === Arduino CLI and Library Setup ===
+echo "🧰 Setting up Arduino CLI and installing required libraries..."
+
+CLI_VERSION="0.35.2"
+CLI_BIN="$HOME/bin/arduino-cli"
+INSTALL_DIR="$HOME/bin"
+
+mkdir -p "$INSTALL_DIR"
+
+if ! command -v arduino-cli &> /dev/null; then
+  echo "🔧 arduino-cli not found. Installing..."
+
+  ARCH=$(uname -m)
+  OS=$(uname | tr '[:upper:]' '[:lower:]')
+
+  case "$ARCH" in
+    x86_64) PLATFORM="64bit" ;;
+    aarch64 | armv7l) PLATFORM="arm64" ;;
+    *) echo "❌ Unsupported architecture: $ARCH"; exit 1 ;;
+  esac
+
+  wget -q "https://downloads.arduino.cc/arduino-cli/arduino-cli_${CLI_VERSION}_${OS}_${PLATFORM}.tar.gz" -O /tmp/arduino-cli.tar.gz
+  tar -xzf /tmp/arduino-cli.tar.gz -C "$INSTALL_DIR"
+  chmod +x "$CLI_BIN"
+
+  export PATH="$INSTALL_DIR:$PATH"
+
+  if ! grep -q "$INSTALL_DIR" ~/.bashrc; then
+    echo "export PATH=\"$INSTALL_DIR:\$PATH\"" >> ~/.bashrc
+    echo "📝 Added arduino-cli to ~/.bashrc"
+  fi
+
+  echo "✅ arduino-cli installed."
+else
+  echo "✅ arduino-cli already installed."
+fi
+
+arduino-cli config init > /dev/null 2>&1
+arduino-cli core update-index
+arduino-cli core install arduino:avr
+
+LIBRARIES=(
+  "Adafruit NeoPixel"
+  "ArduinoBLE"
+  "LowPower"
+  "BLEPeripheral"
+  "BLESerial"
+)
+
+for LIB in "${LIBRARIES[@]}"; do
+  echo "📚 Installing Arduino library: $LIB"
+  arduino-cli lib install "$LIB"
+done
+
+echo "✅ Arduino environment fully configured."
 
 # === Completion ===
 echo "✅ SensorCluster installation complete!"
