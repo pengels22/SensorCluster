@@ -43,7 +43,9 @@ pip3 install --break-system-packages \
   pyserial \
   RPi.GPIO \
   luma.oled \
-  pillow
+  pillow \
+  adafruit-circuitpython-ina219 \
+  bluezero
 
 # === Add user to groups ===
 echo "👤 Adding '$USER' to system groups..."
