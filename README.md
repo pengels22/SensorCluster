@@ -83,8 +83,8 @@ Clone and run:
 
 ```bash
 cd ~
-git clone https://github.com/pengels22/iOS_app.git
-cd iOS_app
+git clone https://github.com/pengels22/SensorCluster.git
+cd ~/Cluster
 sudo bash install.sh
 ```
 
