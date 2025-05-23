@@ -7,19 +7,55 @@ SensorCluster is a modular Raspberry Pi + Arduino-based system for real-time sig
 ## 📁 Project Structure
 
 ```
-/
-├── Pi/              # Python backend: Flask server, OLED UI, GPIO, logging
-├── Arduino/         # Arduino firmware for sensor data acquisition and IO control
-├── Firmware/        # Compiled firmware binaries (.hex/.bin)
-├── docs/            # Documentation (dependencies, pin mapping, setup notes)
-├── install.sh       # Automated installer for Raspberry Pi
-├── quick_start.md   # Basic usage guide for non-technical users
-├── setup_us.md      # US-specific deployment guidance
-├── setup_eu.md      # EU-specific deployment guidance
-├── VERSION          # Auto-managed version tag
-├── CHANGELOG.md     # Auto-generated changelog
-└── README.md        # You're here!
-```
+SensorCluster/
+├── .DS_Store
+├── CHANGELOG.md
+├── Cluster_Watchdog.sh
+├── Install.sh
+├── README.md
+├── VERSION
+├── git_auto_push.sh
+├── git_watchdog.log
+├── quick_start.md
+├── Arduino/
+│   ├── Core_Backend/
+│   │   ├── Core_Backend.ino
+│   │   └── ...
+│   ├── Sensor_Module/
+│   │   ├── Sensor_Module.ino
+│   │   └── ...
+│   └── ...
+├── Firmware/
+│   ├── Core_Backend.hex
+│   ├── Sensor_Module.hex
+│   └── ...
+├── Pi/
+│   ├── main.py
+│   ├── server/
+│   │   ├── app.py
+│   │   ├── routes.py
+│   │   └── ...
+│   ├── oled/
+│   │   ├── display.py
+│   │   └── ...
+│   ├── gpio/
+│   │   ├── control.py
+│   │   └── ...
+│   └── ...
+├── Web/
+│   ├── index.html
+│   ├── css/
+│   │   ├── style.css
+│   │   └── ...
+│   ├── js/
+│   │   ├── app.js
+│   │   └── ...
+│   └── ...
+└── docs/
+    ├── architecture.md
+    ├── api_reference.md
+    └── ...
+
 
 ---
 
